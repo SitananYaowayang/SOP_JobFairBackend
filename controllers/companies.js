@@ -1,11 +1,13 @@
-const Appointment = require("../models/Appointment");
-const Hospital = require("../models/Hospital");
+const InterviewSession = require("../models/InterviewSession");
+const Company = require("../models/Company");
+const Booking = require("../models/Booking");
 
-exports.getHospitals = async (req, res, next) => {
+exports.getCompanies = async (req, res, next) => {
     try {
         let query;
 
         const reqQuery = {...req.query};
+        
         const removeFields = ["select", "sort", "page", "limit"];
         removeFields.forEach(param => delete reqQuery[param]);
 
@@ -13,7 +15,7 @@ exports.getHospitals = async (req, res, next) => {
 
         let queryStr = JSON.stringify(reqQuery).replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
 
-        query = Hospital.find(JSON.parse(queryStr)).populate("appointments");;
+        query = Company.find(JSON.parse(queryStr)).populate("InterviewSession");;
 
         if (req.query.select) {
             const fields = req.query.select.split(",").join(" ");
@@ -33,11 +35,11 @@ exports.getHospitals = async (req, res, next) => {
         const startIndex = (page - 1) * limit;
         const endIndex = page * limit;
 
-        const total = await Hospital.countDocuments();
+        const total = await Company.countDocuments();
 
         query = query.skip(startIndex).limit(limit);
 
-        const hospitals = await query;
+        const companies = await query;
 
         const pagination = {};
         if (endIndex < total) {
@@ -53,62 +55,64 @@ exports.getHospitals = async (req, res, next) => {
             };
         }
 
-        res.status(200).json({success: true, count: hospitals.length, pagination, data: hospitals});
+        res.status(200).json({success: true, count: companies.length, pagination, data: companies});
     } 
     catch(err) {
         res.status (400).json({success: false});
     }
 };
 
-exports.getHospital = async (req, res, next) => {
+exports.getCompany = async (req, res, next) => {
     try{
-        const hospital = await Hospital.findById(req.params.id);
+        const company = await Company.findById(req.params.id);
 
-        if(!hospital){
+        if(!company){
             return res.status(400).json({success:false});
         }
 
-        res.status(200).json({success:true, data:hospital});
+        res.status(200).json({success:true, data:company});
     } catch(err) {
         res.status(400).json({success:false});
     }
 };
 
-exports.createHospital = async (req, res, next) => {
-    const hospital = await Hospital.create(req.body);
+exports.createCompany = async (req, res, next) => {
+    const company = await Company.create(req.body);
     res.status(201).json({
         success: true,
-        data:hospital
+        data:company
     })
 };
 
-exports.updateHospital = async (req, res, next) => {
+exports.updateCompany = async (req, res, next) => {
     try{
-        const hospital = await Hospital.findByIdAndUpdate(req.params.id, req.body, {
+        const company = await Company.findByIdAndUpdate(req.params.id, req.body, {
             new: true,
             runValidators: true
         });
         
-        if(!hospital) {
+        if(!company) {
             return res.status(400).json({success:false});
         }
 
-        res.status(200).json({success:true, data:hospital})
+        res.status(200).json({success:true, data:company})
     } catch(err) {
         res.status(400).json({success:false});
     }
 };
 
-exports.deleteHospital = async (req, res, next) => {
+exports.deleteCompany = async (req, res, next) => {
     try{
-        const hospital = await Hospital.findById(req.params.id);
+        const company = await Company.findById(req.params.id);
 
-        if(!hospital){
-            return res.status(400).json({success:false, message: 'hospital not found'});
+        if(!company){
+            return res.status(400).json({success:false, message: 'company not found'});
         }
 
-        await Appointment.deleteMany({hospital: req.params.id});
-        await Hospital.deleteOne({_id:req.params.id});
+        await InterviewSession.deleteMany({company: req.params.id});
+        await Booking.deleteMany({company: req.params.id});
+        
+        await Company.deleteOne({_id:req.params.id});
 
         res.status(200).json({success:true, data: {} });
     } catch(err) {
