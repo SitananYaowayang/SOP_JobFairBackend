@@ -14,9 +14,10 @@ const swaggerUI = require('swagger-ui-express');
 //Load env vars
 dotenv.config({path:'./config/config.env'});
 
-const hospitals = require ("./routes/hospitals");
+const companies = require ("./routes/companies");
 const auth = require('./routes/auth');
-const appointments = require('./routes/appointments')
+const bookings = require('./routes/bookings');
+const interviewsession = require('./routes/interviewsessions');
 
 connectDB();
 
@@ -63,9 +64,10 @@ const limiter=rateLimit({
 app.use(limiter);
 
 
-app.use("/api/v1/hospitals" ,hospitals);
+app.use("/api/v1/companies" ,companies);
 app.use('/api/v1/auth',auth);
-app.use('/api/v1/appointments', appointments);
+app.use('/api/v1/bookings', bookings);
+app.use('/api/v1/sessions', interviewsession)
 
 const PORT = process.env.PORT || 5000;
 const Server =  app.listen(PORT, console.log('Server running in ', process.env.NODE_ENV, 'mode on port' , PORT));
