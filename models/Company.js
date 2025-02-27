@@ -36,6 +36,10 @@ const CompanySchema = new mongoose.Schema({
         type: String,
         match: [/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/, 'Please add a valid email address']  
     },
+    website: {
+        type: String,
+        match: [/^(https?:\/\/)?(www\.)?[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Please enter a valid website URL']
+    },
     business_type: {
         type: String,
         required: [true, 'Please add a business type']
