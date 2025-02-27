@@ -4,7 +4,8 @@ const {getCompanies, getCompany, createCompany, updateCompany, deleteCompany} = 
 
 
 
-const appointmentRouter = require('./companies');
+const interviewSessionRouter = require('./InterviewSession');
+const bookingRouter = require ('./bookings')
 
 const router = express.Router();
 

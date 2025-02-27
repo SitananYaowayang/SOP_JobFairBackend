@@ -17,7 +17,7 @@ dotenv.config({path:'./config/config.env'});
 const companies = require ("./routes/companies");
 const auth = require('./routes/auth');
 const bookings = require('./routes/bookings');
-const interviewsession = require('./routes/interviewsessions');
+const interviewsession = require('./routes/InterviewSession');
 
 connectDB();
 
