@@ -1,5 +1,5 @@
 {
-  "name": "a-4-warisplai",
+  "name": "project-sop",
   "version": "1.0.0",
   "description": "[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/0yK2PP-x)",
   "main": "server.js",
@@ -18,8 +18,11 @@
     "express-rate-limit": "^7.5.0",
     "express-xss-sanitizer": "^2.0.0",
     "helmet": "^8.0.0",
+    "hpp": "^0.2.3",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.10.1"
+    "mongoose": "^8.10.1",
+    "swagger-jsdoc": "^6.0.0",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
