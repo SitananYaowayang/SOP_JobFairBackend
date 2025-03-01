@@ -47,6 +47,12 @@ exports.createInterviewSession = async (req, res) => {
             return res.status(403).json({ success: false, message: "Not authorized" });
         }
 
+        // Check if the company exists using `.exists()`
+        const companyExists = await Company.exists({ _id: req.body.company });
+        if (!companyExists) {
+            return res.status(400).json({ success: false, message: "Company not found" });
+        }
+
         const session = await InterviewSession.create(req.body);
         res.status(201).json({ success: true, data: session });
     } catch (err) {
@@ -64,7 +70,7 @@ exports.updateInterviewSession = async (req, res) => {
         if (!session) {
             return res.status(404).json({ success: false, message: "Session not found" });
         }
-
+        
         // Company users can only update their own company's sessions
         if (req.user.role === "company_user" && session.company.toString() !== req.user.affiliate.toString()) {
             return res.status(403).json({ success: false, message: "Not authorized" });

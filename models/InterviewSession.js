@@ -14,16 +14,19 @@ const InterviewSessionSchema = new mongoose.Schema({
     jobDescription: {
         type: String
     },
-    date: {
-        type: String,
-        required: [true, "Please add a session date"]
+    startDate: {
+        type: Date,
+        required: [true, "Please add a session start date"]
+    },
+    endDate: {
+        type: Date,
+        required: [true, "Please add a session end date"]
     },
     company: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "company",
+        ref: "Company",
         required: true
-    },
-
+    }
 }, 
 {
     toJSON: { virtuals: true },
