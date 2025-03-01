@@ -18,11 +18,6 @@ const InterviewSessionSchema = new mongoose.Schema({
         type: String,
         required: [true, "Please add a session date"]
     },
-    user :{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true
-    },
     company: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "company",
