@@ -68,13 +68,14 @@ exports.getCompany = async (req, res, next) => {
         const company = await Company.findById(req.params.id);
 
         if(!company){
-            return res.status(400).json({success:false});
+            return res.status(404).json({success:false});
         }
 
         res.status(200).json({success:true, data:company});
-    } catch(err) {
-        res.status(400).json({success:false});
+    } catch (err) {
+        res.status(400).json({ success: false, message: err.message });
     }
+    
 };
 
 exports.createCompany = async (req, res, next) => {
