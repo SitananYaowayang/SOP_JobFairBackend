@@ -13,11 +13,11 @@ const { protect, authorize } = require('../middleware/auth');
 
 router.route('/')
   .get(protect, getInterviewSessions) 
-  .post(protect, authorize('admin'), createInterviewSession); 
+  .post(protect, authorize('admin','user_company'), createInterviewSession); 
 
 router.route('/:id')
   .get(protect, getInterviewSession)  
-  .put(protect, authorize('admin'), updateInterviewSession)  
-  .delete(protect, authorize('admin'), deleteInterviewSession);  
+  .put(protect, authorize('admin','user_company'), updateInterviewSession)  
+  .delete(protect, authorize('admin','user_company'), deleteInterviewSession);  
 
 module.exports = router;
