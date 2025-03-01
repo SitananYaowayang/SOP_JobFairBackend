@@ -15,7 +15,7 @@ exports.getCompanies = async (req, res, next) => {
 
         let queryStr = JSON.stringify(reqQuery).replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
 
-        query = Company.find(JSON.parse(queryStr)).populate("InterviewSession");;
+        query = Company.find(JSON.parse(queryStr)).populate("interviewsessions");
 
         if (req.query.select) {
             const fields = req.query.select.split(",").join(" ");
@@ -58,6 +58,7 @@ exports.getCompanies = async (req, res, next) => {
         res.status(200).json({success: true, count: companies.length, pagination, data: companies});
     } 
     catch(err) {
+        console.log(err);
         res.status (400).json({success: false});
     }
 };
