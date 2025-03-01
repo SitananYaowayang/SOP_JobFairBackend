@@ -2,80 +2,102 @@ const Booking = require('../models/Booking');
 const Company = require('../models/Company');
 const InterviewSession = require('../models/InterviewSession')
 
-exports.getBookings= async (req,res,next)=>{
+// 1. Get all bookings
+exports.getBookings = async (req, res, next) => {
     let query;
 
-    if(req.user.role !== 'admin'){
-        query = Booking.find({user:req.user.id}).populate({
-            path:'company',
-            select: 'name address website description tel'
+    if (req.user.role !== 'admin') {
+        // Non-admin users should only see their own bookings
+        query = Booking.find({ user: req.user.id }).populate({
+            path: 'company',
+            select: 'name address website tel'
         });
-    } 
-    else {
-        if(req.params.companyId){
-            console.log(req.params.companyId);
-            query = Company.find({company:req.params.companyId}).populate({
-                path:'company',
-                select: 'name address website description tel'
+    } else {
+        // Admins can filter by company or see all bookings
+        if (req.params.companyId) {
+            query = Booking.find({ company: req.params.companyId }).populate({
+                path: 'company',
+                select: 'name address website tel'
             });
-            
-        } else{
+        } else {
             query = Booking.find().populate({
-                path:'company',
-                select: 'name address website description tel'
+                path: 'company',
+                select: 'name address website tel'
             });
         }
-        
-        
     }
 
     try {
         const bookings = await query;
 
         res.status(200).json({
-            success:true,
+            success: true,
             count: bookings.length,
             data: bookings
         });
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({success:false,message:"Cannot find Booking"});
+        console.error(error);
+        return res.status(500).json({ success: false, message: "Cannot find Booking" });
     }
 };
 
-exports.getBooking= async(req,res,next) => {
+// 2. Get one booking by ID
+exports.getBooking = async (req, res, next) => {
     try {
         const booking = await Booking.findById(req.params.id).populate({
             path: 'company',
-            select: 'name address website description tel'  
+            select: 'name address website description tel'
         });
-        
-        if(!booking){
-            return res.status(404).json({success:false,message:`No booking in id of ${req.params.id}`})
+
+        if (!booking) {
+            return res.status(404).json({ success: false, message: `No booking found with ID ${req.params.id}` });
         }
 
         res.status(200).json({
-            success:true,
+            success: true,
             data: booking
         });
-    }catch (error) {
-        console.log(error);
-        return res.status(500).json({success:false,message: " Cannot find Booking"});
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ success: false, message: "Cannot find Booking" });
     }
 };
+
+// 3. Get all bookings by user ID
+exports.getBookingUser = async (req, res, next) => {
+    console.log("User ID:", req.params.id);
+    try {
+        const bookings = await Booking.find({ user: req.params.id }).populate({
+            path: 'company',
+            select: 'name address website tel'
+        });
+
+        res.status(200).json({
+            success: true,
+            count: bookings.length,
+            data: bookings
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ success: false, message: "Cannot find Bookings for user" });
+    }
+};
+
 
 
 exports.addBooking= async (req,res,next) => {
     try {
-        // console.log(req.req.params);
-        req.body.company = req.params.companyId;
+        console.log(req.body.company);
         
-        const company = await Company.findById(req.params.companyId);
+
+        const company = await Company.findById(req.body.company);
+
+        
 
         if(!company){
             return res.status(404).json({
                 success:false,
-                message:`No company with the id of ${req.params.companyId}`
+                message:`No company with the id of ${req.params.company}`
             });
 
         }
