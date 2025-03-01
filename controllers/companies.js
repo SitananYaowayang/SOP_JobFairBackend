@@ -94,7 +94,7 @@ exports.updateCompany = async (req, res, next) => {
         });
         
         if(!company) {
-            return res.status(400).json({success:false});
+            return res.status(404).json({success:false});
         }
 
         res.status(200).json({success:true, data:company})
@@ -108,7 +108,7 @@ exports.deleteCompany = async (req, res, next) => {
         const company = await Company.findById(req.params.id);
 
         if(!company){
-            return res.status(400).json({success:false, message: 'company not found'});
+            return res.status(404).json({success:false, message: 'company not found'});
         }
 
         await InterviewSession.deleteMany({company: req.params.id});
@@ -116,7 +116,14 @@ exports.deleteCompany = async (req, res, next) => {
         
         await Company.deleteOne({_id:req.params.id});
 
-        res.status(200).json({success:true, data: {} });
+        res.status(200).json({
+            success:true,
+            message:"Company deleted successfully",
+            data: {
+                _id: company._id,
+                name: company.name
+            } 
+        });
     } catch(err) {
         res.status(400).json({success:false});
     }
