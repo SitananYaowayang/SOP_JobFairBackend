@@ -30,4 +30,11 @@ const InterviewSessionSchema = new mongoose.Schema({
     toObject: { virtuals: true }
 });
 
+InterviewSessionSchema.virtual('companiess', {
+    ref: 'Company',
+    localField: 'company',
+    foreignField: '_id',  
+    justOne: false
+});
+
 module.exports = mongoose.model("InterviewSession", InterviewSessionSchema);

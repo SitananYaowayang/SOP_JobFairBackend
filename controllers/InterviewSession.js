@@ -6,9 +6,13 @@ const Booking = require("../models/Booking");
 // @access  Public
 exports.getInterviewSessions = async (req, res) => {
     try {
-        const sessions = await InterviewSession.find().populate("user company");
+        const sessions = await InterviewSession.find().populate({
+            path:'companiess',
+            select: 'name tel email website'
+        });
         res.status(200).json({ success: true, count: sessions.length, data: sessions });
     } catch (err) {
+        console.log(err);
         res.status(400).json({ success: false });
     }
 };
@@ -18,12 +22,16 @@ exports.getInterviewSessions = async (req, res) => {
 // @access  Public
 exports.getInterviewSession = async (req, res) => {
     try {
-        const session = await InterviewSession.findById(req.params.id).populate("user company");
+        const session = await InterviewSession.findById(req.params.id).populate({
+            path:'companiess',
+            select: 'name tel email website'
+        });
         if (!session) {
             return res.status(404).json({ success: false, message: "Session not found" });
         }
         res.status(200).json({ success: true, data: session });
     } catch (err) {
+        console.log(err);
         res.status(400).json({ success: false });
     }
 };
