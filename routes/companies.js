@@ -11,10 +11,10 @@ const router = express.Router();
 
 const {protect,authorize} = require('../middleware/auth');
 
-router.use('/:companyId/interviewsessions/', interviewSessionRouter);
+router.use('/:companyId/sessions/', interviewSessionRouter);
 router.use('/:companyId/bookings/', bookingRouter);
 
-router.route("/").get(protect, getCompanies).post(protect, authorize('admin'), createCompany);
-router.route("/:id").get(protect, getCompany).put(protect, authorize('admin'), updateCompany).delete(protect, authorize('admin'), deleteCompany);
+router.route("/").get(protect, getCompanies).post(protect, authorize('admin','user_company'), createCompany);
+router.route("/:id").get(protect, getCompany).put(protect, authorize('admin','user_company'), updateCompany).delete(protect, authorize('admin','user_company'), deleteCompany);
 
 module.exports = router;

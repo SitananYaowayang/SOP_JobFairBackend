@@ -18,8 +18,13 @@ const UserSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['user','admin'],
+        enum: ['user','admin','user_company'],
         default: 'user'
+    },
+    affiliate: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'Company',
+        default: null 
     },
     password: {
         type:String,

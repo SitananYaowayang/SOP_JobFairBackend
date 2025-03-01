@@ -78,54 +78,102 @@ exports.getCompany = async (req, res, next) => {
     
 };
 
-exports.createCompany = async (req, res, next) => {
-    const company = await Company.create(req.body);
-    res.status(201).json({
-        success: true,
-        data:company
-    })
+exports.createCompany = async (req, res, next) => {  //รอแก้ว่าจะให้สร้างก่อนที่จะมี user_company หรือยังไง
+    try {
+        
+        if (req.user.role === "user_company" && req.user.affiliate) {
+            return res.status(400).json({
+                success: false,
+                message: "You have already created a company."
+            });
+        }
+
+        
+        const company = await Company.create(req.body);
+
+        
+        if (req.user.role === "user_company") {
+            await User.findByIdAndUpdate(req.user.id, { affiliate: company._id });
+        }
+
+        res.status(201).json({
+            success: true,
+            data: company
+        });
+    } catch (err) {
+        res.status(400).json({ success: false, message: "Cannot create company" });
+    }
 };
 
+
 exports.updateCompany = async (req, res, next) => {
-    try{
-        const company = await Company.findByIdAndUpdate(req.params.id, req.body, {
+    try {
+        const company = await Company.findById(req.params.id);
+
+        if (!company) {
+            return res.status(404).json({ success: false, message: "Company not found" });
+        }
+
+       
+        if (req.user.role !== "admin" && req.user.affiliate.toString() !== req.params.id) {
+            return res.status(403).json({
+                success: false,
+                message: "You are not authorized to update this company."
+            });
+        }
+
+        
+        const updatedCompany = await Company.findByIdAndUpdate(req.params.id, req.body, {
             new: true,
             runValidators: true
         });
-        
-        if(!company) {
-            return res.status(404).json({success:false});
-        }
 
-        res.status(200).json({success:true, data:company})
-    } catch(err) {
-        res.status(400).json({success:false});
+        res.status(200).json({ success: true, data: updatedCompany });
+    } catch (err) {
+        res.status(400).json({ success: false, message: "Cannot update company" });
     }
 };
 
+
 exports.deleteCompany = async (req, res, next) => {
-    try{
+    try {
         const company = await Company.findById(req.params.id);
 
-        if(!company){
-            return res.status(404).json({success:false, message: 'company not found'});
+        if (!company) {
+            return res.status(404).json({ success: false, message: "Company not found" });
         }
 
-        await InterviewSession.deleteMany({company: req.params.id});
-        await Booking.deleteMany({company: req.params.id});
         
-        await Company.deleteOne({_id:req.params.id});
+        if (req.user.role !== "admin" && req.user.affiliate.toString() !== req.params.id) {
+            return res.status(403).json({
+                success: false,
+                message: "You are not authorized to delete this company."
+            });
+        }
+
+        
+        await InterviewSession.deleteMany({ company: req.params.id });
+        await Booking.deleteMany({ company: req.params.id });
+
+        
+        await Company.deleteOne({ _id: req.params.id });
+
+        
+        if (req.user.role === "user_company") {
+            await User.findByIdAndUpdate(req.user.id, { affiliate: null });
+        }
 
         res.status(200).json({
-            success:true,
-            message:"Company deleted successfully",
+            success: true,
+            message: "Company deleted successfully",
             data: {
                 _id: company._id,
                 name: company.name
-            } 
+            }
         });
-    } catch(err) {
-        res.status(400).json({success:false});
+    } catch (err) {
+        res.status(400).json({ success: false, message: "Cannot delete company" });
     }
 };
+
 

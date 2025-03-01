@@ -2,13 +2,14 @@ const User = require("../models/User");
 
 exports.register=async (req,res,next) => {
     try{
-        const {name,email,password,role}=req.body;
+        const {name,email,password,role,affiliate}=req.body;
 
         const user=await User.create({
             name,
             email,
             password,
-            role
+            role,
+            affiliate
         });
 
         // const token=user.getSignJwtToken();
@@ -58,7 +59,7 @@ exports.login=async (req,res,next) => {
 const sendTokenResponse=(user,statusCode, res)=>{
     const token=user.getSignedJwtToken();
     const options = {
-        expires:new Date(Date.now()+process.env.JWT_COOKIE_EXPIRE*24*60*60*60*1000),
+        expires:new Date(Date.now()+process.env.JWT_COOKIE_EXPIRE*24*60*60*1000),
         httpOnly: true
     };
     if(process.env.NODE_ENV==='production'){
