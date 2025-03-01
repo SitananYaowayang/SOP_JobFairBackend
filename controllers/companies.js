@@ -78,23 +78,10 @@ exports.getCompany = async (req, res, next) => {
     
 };
 
-exports.createCompany = async (req, res, next) => {  //รอแก้ว่าจะให้สร้างก่อนที่จะมี user_company หรือยังไง
+exports.createCompany = async (req, res, next) => { 
     try {
         
-        if (req.user.role === "user_company" && req.user.affiliate) {
-            return res.status(400).json({
-                success: false,
-                message: "You have already created a company."
-            });
-        }
-
-        
         const company = await Company.create(req.body);
-
-        
-        if (req.user.role === "user_company") {
-            await User.findByIdAndUpdate(req.user.id, { affiliate: company._id });
-        }
 
         res.status(201).json({
             success: true,

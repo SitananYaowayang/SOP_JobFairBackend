@@ -1,8 +1,29 @@
 const User = require("../models/User");
-
+const Company = require("../models/Company");
 exports.register=async (req,res,next) => {
     try{
         const {name,email,password,role,affiliate}=req.body;
+
+        if (role === 'user_company' && !affiliate) {
+            return res.status(400).json({ success: false, message: 'Affiliate company is required for user_company role' });
+        }
+
+        
+        if (role === 'user_company') {
+            const company = await Company.findById(affiliate);
+
+            if (!company) {
+                return res.status(400).json({ success: false, message: 'Affiliate company not found' });
+            }
+
+            if (company.email !== email) {
+                return res.status(400).json({ success: false, message: 'Company email does not match the provided email' });
+            }
+
+            if (company.name !== name) {
+                return res.status(400).json({ success: false, message: 'Company name does not match the provided name' });
+            }
+        }
 
         const user=await User.create({
             name,
