@@ -1,6 +1,6 @@
 const InterviewSession = require("../models/InterviewSession");
 const Booking = require("../models/Booking");
-
+const Company = require('../models/Company');
 // @desc    Get all interview sessions
 // @route   GET /api/interview-sessions
 // @access  Public
@@ -41,7 +41,7 @@ exports.getInterviewSession = async (req, res) => {
 // @access  Private
 exports.createInterviewSession = async (req, res) => {
     try {
-        if (req.user.role === "company_user") {
+        if (req.user.role === "user_company") {
             req.body.company = req.user.affiliate; // Ensure they can only create for their company
         } else if (req.user.role !== "admin") {
             return res.status(403).json({ success: false, message: "Not authorized" });
@@ -86,7 +86,7 @@ exports.updateInterviewSession = async (req, res) => {
         }
         
         // Company users can only update their own company's sessions
-        if (req.user.role === "company_user" && session.company.toString() !== req.user.affiliate.toString()) {
+        if (req.user.role == "user_company" && session.company.toString() !== req.user.affiliate.toString()) {
             return res.status(403).json({ success: false, message: "Not authorized" });
         }
 
@@ -114,7 +114,7 @@ exports.deleteInterviewSession = async (req, res) => {
         }
 
         // Ensure company users can only delete their own sessions
-        if (req.user.role === "company_user" && session.company.toString() !== req.user.affiliate.toString()) {
+        if (req.user.role == "user_company" && session.company.toString() != req.user.affiliate.toString()) {
             return res.status(403).json({ success: false, message: "Not authorized" });
         }
 
