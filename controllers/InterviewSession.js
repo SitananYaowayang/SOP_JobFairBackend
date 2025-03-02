@@ -52,6 +52,20 @@ exports.createInterviewSession = async (req, res) => {
         if (!companyExists) {
             return res.status(400).json({ success: false, message: "Company not found" });
         }
+        const startDate = new Date(req.body.startDate);
+        const endDate = new Date(req.body.endDate);
+
+        
+        const minDate = "2022-05-10";
+        const maxDate = "2022-05-13";
+
+        // Validate that startDate and endDate are within the allowed range
+        if (startDate < minDate || endDate > maxDate) {
+            return res.status(400).json({
+                success: false,
+                message: "Interview session must be between March 10 - March 13, 2022"
+            });
+        }
 
         const session = await InterviewSession.create(req.body);
         res.status(201).json({ success: true, data: session });
