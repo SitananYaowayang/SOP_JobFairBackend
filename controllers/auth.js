@@ -2,7 +2,12 @@ const User = require("../models/User");
 const Company = require("../models/Company");
 exports.register=async (req,res,next) => {
     try{
-        const {name,email,password,role,affiliate}=req.body;
+        const {name,email,tel,password,role,affiliate}=req.body;
+
+        const existingUser = await User.findOne({ tel });
+        if (existingUser) {
+            return res.status(400).json({ success: false, message: 'Phone number already exists' });
+        }
 
         if (role === 'user_company' && !affiliate) {
             return res.status(400).json({ success: false, message: 'Affiliate company is required for user_company role' });
@@ -28,6 +33,7 @@ exports.register=async (req,res,next) => {
         const user=await User.create({
             name,
             email,
+            tel,
             password,
             role,
             affiliate
