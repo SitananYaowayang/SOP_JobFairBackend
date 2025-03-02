@@ -24,6 +24,16 @@ const BookingSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     }
+},{
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+});
+
+BookingSchema.virtual('interviewsessions', {
+    ref: 'InterviewSession',
+    localField: 'interviewSession',
+    foreignField: '_id',  
+    justOne: false
 });
 
 module.exports = mongoose.model('Booking', BookingSchema);

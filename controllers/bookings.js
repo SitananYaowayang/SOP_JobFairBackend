@@ -90,17 +90,16 @@ exports.addBooking= async (req,res,next) => {
 
         const company = await Company.findById(req.body.company);
 
-        const bookingDate = req.body.bookingDate;
-
         const session = await InterviewSession.findById(req.body.interviewSession);
 
         const minDate = session.startDate;
         const maxDate = session.endDate;
+        const bookingdate = new Date(req.body.bookingDate);
 
-        if (bookingDate < minDate || bookingDate > maxDate){
+        if (bookingdate < minDate || bookingdate > maxDate){
             return res.status(400).json({
                 success: false,
-                message: 'bookingDate must be between 10th May 2022 and 13th May 2022'
+                message: 'bookingDate must be between ' + minDate + ' and ' + maxDate
             });
         }
 
@@ -145,7 +144,7 @@ exports.updateBooking= async (req,res,next) => {
     if(req.user.role == 'user'){
         const today = new Date(req.params.date);
         const cutoffDate = new Date('2022-05-02');
-
+        
         if (today > cutoffDate) {
             return res.status(403).json({ message: 'Too late access denied' });
         }
@@ -161,7 +160,7 @@ exports.updateBooking= async (req,res,next) => {
         }
 
         if(req.user.role == 'user'){
-            if(req.user.id !== booking.user)return res.status(400).json({success: false, message: `You are not authorized to update this booking`})
+            if(req.user.id.toString() !== booking.user.toString())return res.status(400).json({success: false, message: `You are not authorized to update this booking`})
         }
         if(req.user.role == 'user_company'){
             if(req.user.affiliate !== booking.company)return res.status(400).json({success: false, message: `You are not authorized to update this booking`})
@@ -170,6 +169,19 @@ exports.updateBooking= async (req,res,next) => {
 
         if(booking.user.toString() !== req.user.id && req.user.role !== 'admin'){
             return res.status(401).json({success:false,message:`User ${req.user.id} is not authorized to update this booking`});
+        }
+        
+        const session = await InterviewSession.findById(booking.interviewSession);
+
+        const minDate = session.startDate;
+        const maxDate = session.endDate;
+        const bookingdate = new Date(req.body.bookingDate);
+
+        if (bookingdate < minDate || bookingdate > maxDate){
+            return res.status(400).json({
+                success: false,
+                message: 'bookingDate must be between ' + minDate + ' and ' + maxDate
+            });
         }
 
         booking = await Booking.findByIdAndUpdate(req.params.id, req.body,
@@ -212,10 +224,10 @@ exports.deleteBooking= async (req,res,next) => {
         }
 
         if(req.user.role ==='user'){
-            if(req.user.id !== booking.user)return res.status(400).json({success: false, message: `You are not authorized to delete this booking`})
+            if(req.user.id.toString() !== booking.user.toString())return res.status(400).json({success: false, message: `You(user) are not authorized to delete this booking`})
         }
         if(req.user.role === 'user_company'){
-            if(req.user.affiliate !== booking.company)return res.status(400).json({success: false, message: `You are not authorized to delete this booking`})
+            if(req.user.affiliate !== booking.company)return res.status(400).json({success: false, message: `You(company) are not authorized to delete this booking`})
         }
 
         
