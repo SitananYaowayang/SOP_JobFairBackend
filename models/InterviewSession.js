@@ -20,7 +20,13 @@ const InterviewSessionSchema = new mongoose.Schema({
     },
     endDate: {
         type: Date,
-        required: [true, "Please add a session end date"]
+        required: [true, "Please add a session end date"],
+        validate: {
+            validator: function (value) {
+                return this.startDate <= value;
+            },
+            message: "End date must be after or equal to start date"
+        }
     },
     company: {
         type: mongoose.Schema.Types.ObjectId,
@@ -37,7 +43,7 @@ InterviewSessionSchema.virtual('companiess', {
     ref: 'Company',
     localField: 'company',
     foreignField: '_id',  
-    justOne: false
+    justOne: true
 });
 
 module.exports = mongoose.model("InterviewSession", InterviewSessionSchema);
