@@ -7,17 +7,17 @@ const router = express.Router({mergeParams : true});
 const {protect,authorize} = require('../middleware/auth');
 
 router.route('/')
-    .get(protect, getBookings)
+    .get(protect, authorize('user','admin'),getBookings)
     .post(protect, authorize('user','admin'), addBooking);
 
 router.route('/:id/user')
-    .get(protect, getBookingUser);
+    .get(protect,authorize('user','admin'), getBookingUser);
 router.route('/:id/ses')
     .get(protect, getBooking);
 
 router.route('/:id')
-    .put(protect, authorize('user','admin'), updateBooking)
-    .delete(protect, authorize('user','admin'), deleteBooking);
+    .put(protect, authorize('user','user_company','admin'), updateBooking)
+    .delete(protect, authorize('user','user_company','admin'), deleteBooking);
 
 
 
