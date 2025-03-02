@@ -65,6 +65,20 @@ exports.getBookings = async (req, res, next) => {
 
         const bookings = await query;
 
+        const pagination = {};
+        if (endIndex < total) {
+            pagination.next = {
+                page: page + 1,
+                limit
+            };
+        }
+        if (startIndex > 0) {
+            pagination.prev = {
+                page: page - 1,
+                limit
+            };
+        }
+
         res.status(200).json({
             success: true,
             count: bookings.length,
@@ -124,6 +138,10 @@ exports.addBooking= async (req,res,next) => {
         const company = await Company.findById(req.body.company);
 
         const session = await InterviewSession.findById(req.body.interviewSession);
+        const repeatsession = await Booking.find({interviewSession: req.body.interviewSession});
+        if(repeatsession){
+            return res.status(400).json({success: false, message: 'you already book this session'});
+        }
 
         const minDate = session.startDate;
         const maxDate = session.endDate;
