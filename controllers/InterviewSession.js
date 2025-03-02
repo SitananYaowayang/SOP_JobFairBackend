@@ -56,8 +56,8 @@ exports.createInterviewSession = async (req, res) => {
         const endDate = new Date(req.body.endDate);
 
         
-        const minDate = "2022-05-10";
-        const maxDate = "2022-05-13";
+        const minDate = new Date("2022-05-10");
+        const maxDate = new Date("2022-05-13");
 
         // Validate that startDate and endDate are within the allowed range
         if (startDate < minDate || endDate > maxDate) {
