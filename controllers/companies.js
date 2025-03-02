@@ -1,6 +1,8 @@
 const InterviewSession = require("../models/InterviewSession");
 const Company = require("../models/Company");
 const Booking = require("../models/Booking");
+const User = require('../models/User');
+
 
 exports.getCompanies = async (req, res, next) => {
     try {
@@ -124,6 +126,13 @@ exports.updateCompany = async (req, res, next) => {
 
 exports.deleteCompany = async (req, res, next) => {
     try {
+        if (req.user.role !== "admin" ) {
+            return res.status(403).json({
+                success: false,
+                message: "You are not authorized to delete this company."
+            });
+        }
+
         const company = await Company.findById(req.params.id);
 
         if (!company) {
@@ -131,23 +140,20 @@ exports.deleteCompany = async (req, res, next) => {
         }
 
         
-        if (req.user.role !== "admin" && req.user.affiliate.toString() !== req.params.id) {
-            return res.status(403).json({
-                success: false,
-                message: "You are not authorized to delete this company."
-            });
-        }
+        
+        const deleteSessions = await InterviewSession.deleteMany({ company: req.params.id });
+        const deleteBookings = await Booking.deleteMany({ company: req.params.id });
+        const deleteUsers = await User.deleteMany({ role: "user_company", affiliate: req.params.id });
+
+    
 
         
-        await InterviewSession.deleteMany({ company: req.params.id });
-        await Booking.deleteMany({ company: req.params.id });
+        const deleteCompany = await Company.deleteOne({ _id: req.params.id });
+       
 
-        
-        await Company.deleteOne({ _id: req.params.id });
-
-        
         if (req.user.role === "user_company") {
             await User.findByIdAndUpdate(req.user.id, { affiliate: null });
+            
         }
 
         res.status(200).json({
@@ -159,8 +165,10 @@ exports.deleteCompany = async (req, res, next) => {
             }
         });
     } catch (err) {
-        res.status(400).json({ success: false, message: "Cannot delete company" });
+        
+        res.status(400).json({ success: false, message: "Cannot delete company", error: err.message });
     }
 };
+
 
 
