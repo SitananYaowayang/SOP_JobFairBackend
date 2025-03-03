@@ -22,10 +22,37 @@ exports.getInterviewSessions = async (req, res) => {
 // @access  Public
 exports.getInterviewSession = async (req, res) => {
     try {
-        const session = await InterviewSession.findById(req.params.id).populate({
-            path:'companiess',
-            select: 'name tel email website'
-        });
+        let query = InterviewSession.findById(req.params.id);
+
+        const userRole = req.user.role;
+        
+        if (userRole === 'admin') {
+            // Admin: Populate all related fields (company and bookings)
+            query = query.populate({
+                path: 'companiess',
+                select: 'name tel email website'
+            }).populate({
+                path: 'bookings',
+                select: 'bookingDate user'
+            });
+        } else if (userRole === 'user_company') {
+            query = query.populate({
+                path: 'companiess',
+                select: 'name tel email website'
+            }).populate({
+                path: 'bookings',
+                match: { company: req.user.affiliate }, 
+                select: 'bookingDate user'
+            });
+          
+        } else if (userRole === 'user') {
+            query = query.populate({
+                path: 'companiess',
+                select: 'name tel email website'
+            });
+        }
+        const session = await query;
+
         if (!session) {
             return res.status(404).json({ success: false, message: "Session not found" });
         }

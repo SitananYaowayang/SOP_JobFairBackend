@@ -45,5 +45,12 @@ InterviewSessionSchema.virtual('companiess', {
     foreignField: '_id',  
     justOne: true
 });
+InterviewSessionSchema.virtual("bookings", {
+    ref: "Booking",
+    localField: "_id",
+    foreignField: "interviewSession",
+    justOne: false
+});
+
 
 module.exports = mongoose.model("InterviewSession", InterviewSessionSchema);
