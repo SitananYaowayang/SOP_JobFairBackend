@@ -31,10 +31,10 @@ exports.getBookings = async (req, res, next) => {
             select: 'sessionName jobPosition jobDescription'
         })
     } else {
-        //console.log(req.params)
+        console.log(req.params)
         if(req.params.sessionId){
-            //console.log('aaaaa')
-            query = Booking.find({InterviewSession : req.params.sessionID}).populate({
+            console.log('aaaaa')
+            query = Booking.find({InterviewSession : req.params.sessionId}).populate({
                 path: 'company',
                 select: 'name address website tel'
             }).populate({
@@ -43,9 +43,9 @@ exports.getBookings = async (req, res, next) => {
             });
         }
         else{
-            //console.log('aaaaab')
+            console.log('aaaaab')
             if(req.params.companyID){
-                query = Booking.find({company : req.params.sessionID}).populate({
+                query = Booking.find({company : req.params.sessionId}).populate({
                     path: 'company',
                     select: 'name address website tel'
                 }).populate({
@@ -53,7 +53,7 @@ exports.getBookings = async (req, res, next) => {
                     select: 'sessionName jobPosition jobDescription'
                 });
             } else{
-                //console.log('aaaaac')
+                console.log('aaaaac')
                 query = Booking.find().populate({
                     path: 'company',
                     select: 'name address website tel'
