@@ -163,6 +163,7 @@ exports.addBooking= async (req,res,next) => {
         console.log(req.body.company);
         
         if(req.params.companyID){
+            console.log('aaa')
             req.body.company = req.params.companyID;
         }
         if(req.params.sessionID){
@@ -173,8 +174,8 @@ exports.addBooking= async (req,res,next) => {
 
         const session = await InterviewSession.findById(req.body.interviewSession);
         const repeatsession = await Booking.find({interviewSession: req.body.interviewSession});
-        console.log(req.body.interviewSession);
-        console.log(repeatsession);
+        console.log('interviewsession:' + req.body.interviewSession);
+        console.log(session);
         if(repeatsession.length > 0 ){
             return res.status(400).json({success: false, message: 'you already book this session'});
         }
@@ -189,12 +190,6 @@ exports.addBooking= async (req,res,next) => {
                 message: 'bookingDate must be between ' + minDate + ' and ' + maxDate
             });
         }
-        if(session.company !== req.body.company){
-            return res.status(400).json({
-                success:false,
-                message: `interviewSession ${req.body.interviewSession} is not in this company ${req.body.company} `
-            });
-        }
         if(!company){
             return res.status(404).json({
                 success:false,
@@ -207,6 +202,14 @@ exports.addBooking= async (req,res,next) => {
                 message:`No Interview session with the id of ${req.body.company}`
             });
         }
+
+        if(session.company.toString() !== req.body.company.toString()){
+            return res.status(400).json({
+                success:false,
+                message: `interviewSession ${req.body.interviewSession} is not in this company ${req.body.company} `
+            });
+        }
+        
 
         if(req.user.role === 'user'){
             req.body.user = req.user.id;
