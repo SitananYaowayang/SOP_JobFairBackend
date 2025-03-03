@@ -172,6 +172,7 @@ exports.addBooking= async (req,res,next) => {
             req.body.company = req.params.companyId;
         }
         if(req.params.sessionId){
+            console.log('bbb')
             req.body.interviewSession = req.params.sessionId;
         }
 
@@ -185,16 +186,6 @@ exports.addBooking= async (req,res,next) => {
             return res.status(400).json({success: false, message: 'you already book this session'});
         }
 
-        const minDate = session.startDate;
-        const maxDate = session.endDate;
-        const bookingdate = new Date(req.body.bookingDate);
-
-        if (bookingdate < minDate || bookingdate > maxDate){
-            return res.status(400).json({
-                success: false,
-                message: 'bookingDate must be between ' + minDate + ' and ' + maxDate
-            });
-        }
         if(!company){
             return res.status(404).json({
                 success:false,
@@ -207,6 +198,18 @@ exports.addBooking= async (req,res,next) => {
                 message:`No Interview session with the id of ${req.body.company}`
             });
         }
+
+        const minDate = session.startDate;
+        const maxDate = session.endDate;
+        const bookingdate = new Date(req.body.bookingDate);
+
+        if (bookingdate < minDate || bookingdate > maxDate){
+            return res.status(400).json({
+                success: false,
+                message: 'bookingDate must be between ' + minDate + ' and ' + maxDate
+            });
+        }
+        
 
         if(session.company.toString() !== req.body.company.toString()){
             return res.status(400).json({
