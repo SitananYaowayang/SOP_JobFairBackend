@@ -31,13 +31,34 @@ exports.getBookings = async (req, res, next) => {
             select: 'sessionName jobPosition jobDescription'
         })
     } else {
-        query = Booking.find().populate({
-            path: 'company',
-            select: 'name address website tel'
-        }).populate({
-            path: 'interviewSession',
-            select: 'sessionName jobPosition jobDescription'
-        });
+        if(req.params.sessionID){
+            query = Booking.find({InterviewSession : req.params.sessionID}).populate({
+                path: 'company',
+                select: 'name address website tel'
+            }).populate({
+                path: 'interviewSession',
+                select: 'sessionName jobPosition jobDescription'
+            });
+        }
+        else{
+            if(req.params.companyID){
+                query = Booking.find({company : req.params.sessionID}).populate({
+                    path: 'company',
+                    select: 'name address website tel'
+                }).populate({
+                    path: 'interviewSession',
+                    select: 'sessionName jobPosition jobDescription'
+                });
+            } else{
+                query = Booking.find().populate({
+                    path: 'company',
+                    select: 'name address website tel'
+                }).populate({
+                    path: 'interviewSession',
+                    select: 'sessionName jobPosition jobDescription'
+                });
+            }
+        }
     }
     try {
         if (req.query.select) {
@@ -140,7 +161,13 @@ exports.addBooking= async (req,res,next) => {
     }
     try {
         console.log(req.body.company);
-
+        
+        if(req.params.companyID){
+            req.body.company = req.params.companyID;
+        }
+        if(req.params.sessionID){
+            req.body.interviewSession = req.params.sessionID;
+        }
 
         const company = await Company.findById(req.body.company);
 
@@ -162,14 +189,25 @@ exports.addBooking= async (req,res,next) => {
                 message: 'bookingDate must be between ' + minDate + ' and ' + maxDate
             });
         }
-
+        if(session.company !== req.body.company){
+            return res.status(400).json({
+                success:false,
+                message: `interviewSession ${req.body.interviewSession} is not in this company ${req.body.company} `
+            });
+        }
         if(!company){
             return res.status(404).json({
                 success:false,
                 message:`No company with the id of ${req.body.company}`
             });
-
         }
+        if(!session){
+            return res.status(404).json({
+                success:false,
+                message:`No Interview session with the id of ${req.body.company}`
+            });
+        }
+
         if(req.user.role === 'user'){
             req.body.user = req.user.id;
         }
