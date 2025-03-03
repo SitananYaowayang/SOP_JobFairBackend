@@ -34,7 +34,7 @@ exports.getBookings = async (req, res, next) => {
         console.log(req.params)
         if(req.params.sessionId){
             console.log('aaaaa')
-            query = Booking.find({InterviewSession : req.params.sessionId}).populate({
+            query = Booking.find({interviewSession : req.params.sessionId}).populate({
                 path: 'company',
                 select: 'name address website tel'
             }).populate({
@@ -44,14 +44,15 @@ exports.getBookings = async (req, res, next) => {
         }
         else{
             console.log('aaaaab')
-            if(req.params.companyID){
-                query = Booking.find({company : req.params.sessionId}).populate({
+            if(req.params.companyId){
+                query = Booking.find({company : req.params.companyId}).populate({
                     path: 'company',
                     select: 'name address website tel'
                 }).populate({
                     path: 'interviewSession',
                     select: 'sessionName jobPosition jobDescription'
                 });
+                console.log(query);
             } else{
                 console.log('aaaaac')
                 query = Booking.find().populate({
@@ -166,9 +167,9 @@ exports.addBooking= async (req,res,next) => {
     try {
         console.log(req.body.company);
         
-        if(req.params.companyID){
+        if(req.params.companyId){
             console.log('aaa')
-            req.body.company = req.params.companyID;
+            req.body.company = req.params.companyId;
         }
         if(req.params.sessionId){
             req.body.interviewSession = req.params.sessionId;
