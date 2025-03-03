@@ -9,6 +9,11 @@ exports.register=async (req,res,next) => {
             return res.status(400).json({ success: false, message: 'Phone number already exists' });
         }
 
+        const existingUserByEmail = await User.findOne({ email });
+        if (existingUserByEmail) {
+            return res.status(400).json({ success: false, message: 'Email already exists' });
+        }
+        
         if (role === 'user_company' && !affiliate) {
             return res.status(400).json({ success: false, message: 'Affiliate company is required for user_company role' });
         }
