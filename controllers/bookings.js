@@ -14,11 +14,10 @@ exports.getBookings = async (req, res, next) => {
     console.log(reqQuery);
 
     let queryStr = JSON.stringify(reqQuery).replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
-
-
+    
     if (req.user.role === 'user') {
         // Non-admin users should only see their own bookings
-        query = Booking.find({ user: req.user.id }).populate({
+        query = Booking.find({ user: req.user.id },JSON.parse(queryStr)).populate({
             path: 'company',
             select: 'name address website tel'
         }).populate({
@@ -27,7 +26,7 @@ exports.getBookings = async (req, res, next) => {
         });
     }
     else if (req.user.role === 'user_company') {
-        query = Booking.find({ company: req.user.affiliate}).populate({
+        query = Booking.find({ company: req.user.affiliate},JSON.parse(queryStr)).populate({
             path: 'interviewsessions',
             select: 'sessionName jobPosition jobDescription'
         })
@@ -92,35 +91,43 @@ exports.getBookings = async (req, res, next) => {
 };
 
 // 2. Get one booking by sessionID
-// exports.getBooking = async (req, res, next) => {
-//     try {
-//         if(req.user.role === 'user_company'){
-//             if(req.user.affiliate != comp.company){
-//                 return res.status(400).json({ success: false, message: `you are not from company with ID ${req.params.id}` });
-//             }
-//         } 
-//         const booking = await Booking.findById(req.params.id).populate({
-//             path: 'company',
-//             select: 'name address website description tel'
-//         });
+exports.getBooking = async (req, res, next) => {
+    try {
 
-//         if (!booking) {
-//             return res.status(404).json({ success: false, message: `No booking found with ID ${req.params.id}` });
-//         }
+        const comp = await Booking.findById(req.params.id);
 
-//         if(req.user.role === 'user') {
-//             return res.status(200).json({ success: true, amount : booking.length() });
-//         }
+        if(req.user.role === 'user'){
+            if(req.user.id !== comp.user){
+                return res.status(400).json({ success: false, message: `you are not in booking with ID ${req.params.id}` });
+            }
+        }
 
-//         res.status(200).json({
-//             success: true,
-//             data: booking
-//         });
-//     } catch (error) {
-//         console.error(error);
-//         return res.status(500).json({ success: false, message: "Cannot find Booking" });
-//     }
-// };
+        if(req.user.role === 'user_company'){
+            if(req.user.affiliate !== comp.company){
+                return res.status(400).json({ success: false, message: `you are not in booking with ID ${req.params.id}` });
+            }
+        } 
+        const booking = await Booking.findById(req.params.id).populate({
+            path: 'company',
+            select: 'name address website tel'
+        }).populate({
+            path: 'interviewSession',
+            select: 'sessionName jobPosition jobDescription'
+        });
+
+        if (!booking) {
+            return res.status(404).json({ success: false, message: `No booking found with ID ${req.params.id}` });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: booking
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ success: false, message: "Cannot find Booking" });
+    }
+};
 
 exports.addBooking= async (req,res,next) => {
     if(req.user.role === 'user'){

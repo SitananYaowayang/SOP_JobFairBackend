@@ -10,9 +10,10 @@ router.route('/').get(protect, authorize('user','user_company','admin'),getBooki
 router.route('/:date').post(protect, authorize('user','admin'), addBooking);
 
 // router.route('/:id')
-//     .get(protect, getBooking);
+//     
 
 router.route('/:id/:date')
+    .get(protect, getBooking)
     .put(protect, authorize('user','user_company','admin'), updateBooking)
     .delete(protect, authorize('user','user_company','admin'), deleteBooking);
 
