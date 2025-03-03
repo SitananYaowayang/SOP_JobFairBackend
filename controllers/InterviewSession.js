@@ -6,6 +6,12 @@ const Company = require('../models/Company');
 // @access  Public
 exports.getInterviewSessions = async (req, res) => {
     try {
+        let query;
+        if (req.params.companyId) {
+            query = InterviewSession.find({ company: req.params.companyId });
+        } else {
+            query = InterviewSession.find();
+        }
         const sessions = await InterviewSession.find().populate({
             path:'companiess',
             select: 'name tel email website'
@@ -23,6 +29,22 @@ exports.getInterviewSessions = async (req, res) => {
 exports.getInterviewSession = async (req, res) => {
     try {
         let query = InterviewSession.findById(req.params.id);
+        
+        // If accessing through company route, verify the session belongs to that company
+        if (req.params.companyId) {
+            const session = await InterviewSession.findOne({
+                _id: req.params.id,
+                company: req.params.companyId
+            });
+            
+            if (!session) {
+                return res.status(404).json({ 
+                    success: false, 
+                    message: "No interview session found for this company with this ID" 
+                });
+            }
+        }
+
 
         const userRole = req.user.role;
         
