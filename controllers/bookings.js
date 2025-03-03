@@ -139,7 +139,9 @@ exports.addBooking= async (req,res,next) => {
 
         const session = await InterviewSession.findById(req.body.interviewSession);
         const repeatsession = await Booking.find({interviewSession: req.body.interviewSession});
-        if(repeatsession){
+        console.log(req.body.interviewSession);
+        console.log(repeatsession);
+        if(repeatsession.length > 0 ){
             return res.status(400).json({success: false, message: 'you already book this session'});
         }
 
@@ -186,7 +188,7 @@ exports.addBooking= async (req,res,next) => {
 
         return res.status(500).json({
             success:false,
-            message: " Cannot crete booking"
+            message: " Cannot create booking"
         });
     }
 };
