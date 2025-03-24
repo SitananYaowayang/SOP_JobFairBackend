@@ -25,12 +25,14 @@ exports.getBookings = async (req, res, next) => {
             select: 'sessionName jobPosition jobDescription'
         });
     }
-    else if (req.user.role === 'user_company') {
-        query = Booking.find({ company: req.user.affiliate},JSON.parse(queryStr)).populate({
+    //user_company 
+    else if(req.user.role === 'user_company'){
+        query = Booking.find({company: req.user.affiliate},JSON.parse(queryStr)).populate({
             path: 'interviewsessions',
             select: 'sessionName jobPosition jobDescription'
-        })
-    } else {
+        });
+    }
+    else {
         console.log(req.params)
         if(req.params.sessionId){
             console.log('aaaaa')
@@ -55,7 +57,7 @@ exports.getBookings = async (req, res, next) => {
                 console.log(query);
             } else{
                 console.log('aaaaac')
-                query = Booking.find().populate({
+                query = await Booking.find().populate({
                     path: 'company',
                     select: 'name address website tel'
                 }).populate({
@@ -75,9 +77,7 @@ exports.getBookings = async (req, res, next) => {
             const sortBy = req.query.sort.split(",").join(" ");
             query = query.sort(sortBy);
         } 
-        else {
-            query = query.sort("-createdAt");
-        }
+        
 
         const page = parseInt(req.query.page, 10) || 1;
         const limit = parseInt(req.query.limit, 10) || 25;
@@ -128,11 +128,13 @@ exports.getBooking = async (req, res, next) => {
             }
         }
 
-        if(req.user.role === 'user_company'){
-            if(req.user.affiliate !== comp.company){
-                return res.status(400).json({ success: false, message: `you are not in booking with ID ${req.params.id}` });
+       //user_company
+        if(req.user.role == 'user_company'){
+            if(req.user.affiliate.toString() !== comp.company.toString()){
+                return res.status(400).json({ success: false, message: `you are not from company in booking with ID ${req.params.id}` });
             }
-        } 
+        }
+
         const booking = await Booking.findById(req.params.id).populate({
             path: 'company',
             select: 'name address website tel'
@@ -271,13 +273,9 @@ exports.updateBooking= async (req,res,next) => {
         if(req.user.role == 'user'){
             if(req.user.id.toString() !== booking.user.toString())return res.status(400).json({success: false, message: `You are not authorized to update this booking`})
         }
+        //user_company
         if(req.user.role == 'user_company'){
-            if(req.user.affiliate !== booking.company)return res.status(400).json({success: false, message: `You are not authorized to update this booking`})
-        }
-        
-
-        if(booking.user.toString() !== req.user.id && req.user.role !== 'admin'){
-            return res.status(401).json({success:false,message:`User ${req.user.id} is not authorized to update this booking`});
+            if(req.user.affiliate.toString() !== booking.company.toString())return res.status(400).json({success: false, message: `You are not authorized to update this booking`})
         }
         
         const session = await InterviewSession.findById(booking.interviewSession);
@@ -335,18 +333,12 @@ exports.deleteBooking= async (req,res,next) => {
         if(req.user.role ==='user'){
             if(req.user.id.toString() !== booking.user.toString())return res.status(400).json({success: false, message: `You(user) are not authorized to delete this booking`})
         }
-        if(req.user.role === 'user_company'){
-            if(req.user.affiliate !== booking.company)return res.status(400).json({success: false, message: `You(company) are not authorized to delete this booking`})
+        //user_company
+        if(req.user.role ==='user_company'){
+            if(req.user.affiliate.toString() !== booking.company.toString())return res.status(400).json({success: false, message: `You(company) are not authorized to delete this booking`})
         }
-
         
-
-        if(booking.user.toString()!== req.user.id && req.user.role !== 'admin'){
-            return res.status(401).json({
-                succcess:false,
-                message:`User ${req.user.id} is not authorized to update this booking`
-            });
-        }
+        
 
         await booking.deleteOne();
 
