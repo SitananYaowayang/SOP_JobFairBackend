@@ -44,6 +44,10 @@ const UserSchema = new mongoose.Schema({
     },
     resetPasswordToken: String,
     resetPasswordExpire: Date,
+    image: {
+        type: String,  
+        default: 'https://drive.google.com/file/d/1QGpQrJxHVTsxNikeNaqwwBySvrVaV_yC/view?usp=sharing',
+    },
     createdAt:{
         type: Date,
         default:Date.now
