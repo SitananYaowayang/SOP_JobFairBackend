@@ -51,6 +51,9 @@ const CompanySchema = new mongoose.Schema({
     company_size: {
         type: String,
         required: [true, 'Please add a company size']
+    },
+    company_picture:{
+        type:String
     }
 }, {
     toJSON: { virtuals: true },
