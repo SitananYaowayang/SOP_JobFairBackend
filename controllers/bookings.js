@@ -21,14 +21,14 @@ exports.getBookings = async (req, res, next) => {
             path: 'company',
             select: 'name address website tel'
         }).populate({
-            path: 'interviewsessions',
+            path: 'interviewSession',
             select: 'sessionName jobPosition jobDescription'
         });
     }
     //user_company 
     else if(req.user.role === 'user_company'){
         query = Booking.find({company: req.user.affiliate},JSON.parse(queryStr)).populate({
-            path: 'interviewsessions',
+            path: 'interviewSession',
             select: 'sessionName jobPosition jobDescription'
         });
     }
@@ -63,7 +63,10 @@ exports.getBookings = async (req, res, next) => {
                 }).populate({
                     path: 'interviewSession',
                     select: 'sessionName jobPosition jobDescription'
-                });
+                }).populate({
+                    path: 'user',
+                    select: 'name email'
+                }); 
             }
         }
     }
@@ -122,8 +125,11 @@ exports.getBooking = async (req, res, next) => {
 
         const comp = await Booking.findById(req.params.id);
 
+
+        console.log(req.user.id + "    :   " + comp.user)
+
         if(req.user.role === 'user'){
-            if(req.user.id !== comp.user){
+            if(req.user.id.toString() !== comp.user.toString()){
                 return res.status(400).json({ success: false, message: `you are not in booking with ID ${req.params.id}` });
             }
         }
@@ -140,7 +146,10 @@ exports.getBooking = async (req, res, next) => {
             select: 'name address website tel'
         }).populate({
             path: 'interviewSession',
-            select: 'sessionName jobPosition jobDescription'
+            select: 'sessionName jobPosition jobDescription startDate endDate'
+        }).populate({
+            path: 'user',
+            select: 'name email tel'
         });
 
         if (!booking) {
@@ -158,6 +167,7 @@ exports.getBooking = async (req, res, next) => {
 };
 
 exports.addBooking= async (req,res,next) => {
+    req.params.date == '2022-05-01'
     if(req.user.role === 'user'){
         const today = new Date(req.params.date);
         const cutoffDate = new Date('2022-05-02');
@@ -181,7 +191,7 @@ exports.addBooking= async (req,res,next) => {
         const company = await Company.findById(req.body.company);
 
         const session = await InterviewSession.findById(req.body.interviewSession);
-        const repeatsession = await Booking.find({interviewSession: req.body.interviewSession});
+        const repeatsession = await Booking.find({interviewSession: req.body.interviewSession ,user: req.user.id});
         console.log('interviewsession:' + req.body.interviewSession);
         console.log(session);
         if(repeatsession.length > 0 ){
@@ -313,6 +323,7 @@ exports.updateBooking= async (req,res,next) => {
 };
 
 exports.deleteBooking= async (req,res,next) => {
+    req.params.date == '2022-05-01'
     if(req.user.role === 'user'){
         const today = new Date(req.params.date);
         const cutoffDate = new Date('2022-05-02');
