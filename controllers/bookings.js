@@ -252,6 +252,7 @@ exports.addBooking= async (req,res,next) => {
 };
 
 exports.updateBooking= async (req,res,next) => {
+    req.params.date == '2022-05-01'
     if(req.user.role == 'user'){
         const today = new Date(req.params.date);
         const cutoffDate = new Date('2022-05-02');
