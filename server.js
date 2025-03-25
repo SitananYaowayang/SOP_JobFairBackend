@@ -54,7 +54,7 @@ app.use(xss());  // Prevent XSS attacks
 
 // Enable CORS (Cross-Origin Resource Sharing)
 app.use(cors({
-    origin: 'http://localhost:3000',  // Frontend URL
+    origin: 'https://projectsop-frontend.vercel.app/',  // Frontend URL
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,  // Allow cookies or headers
 }));
